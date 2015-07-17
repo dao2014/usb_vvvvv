@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Esp_v6</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="logs">.......</string>
+</resources>
