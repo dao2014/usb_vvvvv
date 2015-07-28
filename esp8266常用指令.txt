@@ -1,0 +1,79 @@
+T+RST  //重启
+AT+CWMODE=3  //设置模块 1-Station模式，2-AP模式，3-AP兼Station模式
+AT+CWSAP=”TEST”,”123456123456”,1,3   //<ssid>,<pwd>,<chl>, <ecn> 
+AT+CIPMUX=1    //开启多连接模式   0-单路连接模式，1-多路连接模式
+AT+CIPSERVER=1,8080   //创建服务器  注意必须开启 多路连接模式  0-关闭server模式，1-开启server模式
+AT+CIPAP="192.168.5.1"  // 设置 AP 的 IP 地址
+AT+CIPSTA="192.168.2.104"  //AT+CIPSTA 设置 STA 的 IP 地址
+AT+CWJAP="TD","12345678"  // 连接其他服务器
+AT+CIPSTART="TCP","192.168.2.100",8080  //测试服务器
+AT+CIPSEND=4   //发送数据  直接输入
+AT+CIPCLOSE=5 //关闭 TCP 或 UDP<id>需要关闭的连接 id 当 id=5 时关闭所有连接（开启 server 后 id=5 1效）
+AT+CIPCLOSE  //如果没有连接则，返回ERROR
+AT+CIPMODE=1   //0 非透传模式 1 透传模式只有关闭 server 模式，并且为单路 连接模式的情况下，才能设置 CIPMODE AT+CIPMODE 会触发开机透传信息的保存，包括透传所 需的远程端口号和 ip
+AT+CIPSEND   //开始透传  注：透传只能在单连接模式下进行，所以在建立连接之前一定要用（AT+CIPMUX=0 设置单连接）
+
+
+
+
+二查看指令:
+AT+GMR   //查看版本信息
+//
+AT version:0.21.0.0
+SDK version:0.9.5
+//
+AT+CWLIF   //查看已接入设备的IP
+AT+CIFSR   //查询本机IP地址
+AT+CIFSR=?  //(测试指令)
+AT+CIPMUX?  //查询本模块是否建立多连接  0-单路连接模式，1-多路连接模式
+AT+CIPMODE? // 查询本模块的传输模式   0-非透传模式，1-透传模式
+AT+CIPSTO?  //查询本模块的服务器超时时间
+AT+CIPSTATUS   //查看当前连接  0-本模块做client的连接，1-本模块做server的连接
+
+
+STA模式指令顺序
+
+AT+RST                      //有OK
+AT+CWMODE=1		    //有OK
+AT+CWJAP="TD","12345678"    //有OK
+AT+CIFSR   //如果获取到ERROR就表示连接还没成功!如果连接正确 需要等待 3秒.就可以获取到地址 没有OK的
+AT+CIPSTATUS      //有OK  如果返回 STATUS:1 表示建立连接  如果 2 表示获取到ID  一定要 先 检测ID 再到这个命令
+//********************************
+建立 tcp 连接协议
+AT+CIPSTART="TCP","192.168.6.100",1001  //如果连接成功 Linked 检车 这个字符  如果重复  返回 ALREAY CONNECT
+//如果连接错误 AT+CIPSTART="TCP","192.168.6.100",123456
+
+    //Link typ ERROR
+      AT+CIPSTART="TCP","192.168.6.100",12345
+
+      ERROR
+Unlink
+ERROR
+Unlink
+AT+CIPSEND=30
+
+link is not   //断开连接关系
+
+AT+CIPSEND=4   //发送字节   注意程序会自动重启,首先 如果程序重启就 也就是读到 read 之后就 重新建立关联 服务器会有所返回 +IPD,18:Message Received 
+               //注意 busy now ..之后 就有问题了 > 只能重启 不断发送 直到读取到　ready之后 才重新连接 原来只要等待 服务器还是会返回消息的.然后运作正常
+AT+CIPCLOSE=<id>   //5的时候 关闭所有tcp 连接
+AT+CIPCLOSE    //关闭单路 tcp连接
+/*********************************AD模式
+AT+RST
+AT+CWMODE=3    //设置模式需要重启
+AT+CWSAP="ESP","12345678",5,3   //设置 ssid pass 用户连接的 密码之类  只需要设置一次 会自动保存  需要重启
+AT+CWLIF      //查看已经接入的手机192.168.4.100,3fff50b4:3fff50ba:3fff50c0:3fff50c6:3fff50cc:3fff50d2  有OK
+AT+CIPMUX=1   //多连接模式  
+AT+CIPSERVER=1,1001   //开启 tcp 服务  端口 1001  如果重启就 必须 开启多连接模式 才能开启 tcp服务
+AT+CIPSERVER=0     //关闭tcp服务器  只能重启才能关闭 这个服务器.
+AT+RST   //重启
+Error[Li005]: no definition for "ptr3CLK_HSIPrescalerConfig" [referenced from E:\公司\STM32\STM8\安富\stm8\安富莱STM8S-EK1光盘\02.配套例程\ 
+
+AT+CIPSEND=21
+
+set,12345,2.4v,0.2a222222gh,234234
+
+java com.esp.socket.server.SocketServer
+
+
+
