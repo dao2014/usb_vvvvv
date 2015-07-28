@@ -10,24 +10,24 @@ import java.util.Date;
 
 /**
  * filename:SocketUtil.java
- * author:ÏéÓÂ
+ * author:ç¥¥å‹‡
  * comment:
  */
 
 /**
  * @author martin
- * 
+ *
  */
 public class SocketUtil {
 
 	/**
 	 * write string 2 a outputstream
-	 * 
+	 *
 	 * @param str
 	 *            to write string
-	 * @param in
-	 *            stream
-	 * @throws IOException 
+	 * @param out
+	 *
+	 * @throws IOException
 	 */
 	public static void writeStr2Stream(String str, OutputStream out) throws IOException {
 		try {
@@ -37,7 +37,7 @@ public class SocketUtil {
 
 			// write
 			writer.write(str.getBytes());
-			
+
 			writer.flush();
 		} catch (IOException ex) {
 			//System.out.println(SocketUtil.getNowTime() + ex);
@@ -47,10 +47,10 @@ public class SocketUtil {
 
 	/**
 	 * read string from a inputstream
-	 * 
+	 *
 	 * @param in
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static String readStrFromStream(InputStream in) throws IOException {
 		//System.out.println(getNowTime() + " : start to read string from stream");
@@ -69,7 +69,7 @@ public class SocketUtil {
 				if (2048 == len) {
 					//then append all chars of the array
 					result.append(chars);
-				} 
+				}
 				// if the length of array is less then 1M
 				else {
 					//then append the valid chars
@@ -87,7 +87,7 @@ public class SocketUtil {
 		//System.out.println("end reading string from stream");
 		return result.toString();
 	}
-	
+
 	public static String getNowTime()
 	{
 		return new Date().toString();

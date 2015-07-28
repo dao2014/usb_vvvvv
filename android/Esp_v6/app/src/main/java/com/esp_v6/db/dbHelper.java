@@ -8,15 +8,25 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class dbHelper extends SQLiteOpenHelper {
 
 	private final static String DATABASE_NAME="my_db";
-	private final static int DATABASE_VERSION=1;
+	private final static int DATABASE_VERSION=3;
 	private final static String TABLE_NAME="rt_table";
 	public final static String FIELD_ID="id";
 	public final static String FIELD_T1="t1";
 	public final static String FIELD_RT="rt";
+	private final static String TEST_CHARGER_TABLE="test_charger_table";  //测试仪器数据表
+	public final static String CHARGER_ID="charge_id";     //id
+	public final static String CHARGER_NAME="charge_name";  //设备名称
+	public final static String CHARGER_STATUS="charge_status"; //设备状态 0 web端  1 模块透彻 2 设备已停止
+	public final static String CHARGER_TIME="charge_time";    //设备运行时间  时间格式 date
+	public final static String CHARGER_I="charge_i";       //当前的电流
+	public final static String CHARGER_V="charge_v";      //当前的电压
+	public final static String CHARGER_TC="charge_tc";    //当前的温度
+	public final static String CHARGER_CAPA="charge_capa";    //当前已充容量
+	public final static String CHARGER_POWER="charge_power";    //当前功率
 
 
 	/**
-	 * ��ʼ������
+	 * 初始化 插入 库
 	 * @param db
 	 */
 	public void addDate(SQLiteDatabase db){
@@ -122,7 +132,7 @@ public class dbHelper extends SQLiteOpenHelper {
 
 
 	}
-	
+
 	public dbHelper(Context context)
 	{
 		super(context, DATABASE_NAME,null, DATABASE_VERSION);
@@ -135,6 +145,9 @@ public class dbHelper extends SQLiteOpenHelper {
 		// TODO Auto-generated method stub
 		String sql="Create table "+TABLE_NAME+"("+FIELD_ID+" integer primary key autoincrement,"
 		+FIELD_T1+" REAL,"+FIELD_RT+" REAL );";
+		db.execSQL(sql);
+//		String sql="Create table "+TABLE_NAME+"("+FIELD_ID+" integer primary key autoincrement,"
+//				+FIELD_T1+" REAL,"+FIELD_RT+" REAL );";
 		db.execSQL(sql);
 		//db.execSQL("INSERT INTO "+TABLE_NAME+" VALUES (1, -, ?)");
 		addDate(db);
@@ -150,7 +163,7 @@ public class dbHelper extends SQLiteOpenHelper {
 
 
 	/**
-	 * ��ѯ ��Լ RT ��������Ǹ�
+	 * 查找最大的
 	 * @param Rt
 	 * @return
 	 */
@@ -165,7 +178,7 @@ public class dbHelper extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * ��ȡ��С��ֻ
+	 * 查找最小的电阻比例
 	 * @param Rt
 	 * @param db
 	 * @return

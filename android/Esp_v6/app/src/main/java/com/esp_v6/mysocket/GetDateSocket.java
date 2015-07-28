@@ -49,6 +49,7 @@ public class GetDateSocket extends Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
+        String ret="";
         while (isKeepAlive) {
             Bundle bundle = new Bundle();
             Message msg = Message.obtain();
@@ -62,30 +63,29 @@ public class GetDateSocket extends Thread{
 
                 //out.writeUTF(str);
 
-                String ret =  SocketUtil.readStrFromStream(socket.getInputStream());
+                ret =  SocketUtil.readStrFromStream(socket.getInputStream());
                 System.out.println("服务器端返回过来的是: " + ret);
-                if(ret.equals("stop")){
+                if(ret != null && ret.equals("stop")){
                     ret="下位机已停止!";
 
                 }
-                if(ret.equals("notstart")){
+                if(ret != null && ret.equals("notstart")){
                     ret = "等待下位机启动!";
                     Thread.sleep(2500);
                 }
-                bundle.putString("msg", ret);
+                bundle.putString("msg", ret+"");
                 msg.setData(bundle);
                 //发送消息 修改UI线程中的组件
                 myHandler.sendMessage(msg);
 
                 // 如接收到 "OK" 则断开连接
-                if ("OK".equals(ret)) {
+                if (ret != null && "OK".equals(ret)) {
                     System.out.println("客户端将关闭连接");
                     Thread.sleep(500);
                     break;
                 }
                 Thread.sleep(1000);
             } catch (Exception e) {
-                System.out.println("close......");
                 try {
 
                     socket.close();
@@ -93,6 +93,17 @@ public class GetDateSocket extends Thread{
                 } catch (IOException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
+                }
+                System.out.println("close......");
+            }finally {
+                if(ret==null || ret.equals("")){
+                    try {
+                        if(socket!=null)
+                            socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    isKeepAlive = false;
                 }
             }
         }

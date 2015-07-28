@@ -317,11 +317,8 @@ public class WifiAdmin {
         for(int i = 0; i < mWifiConfiguration.size(); i++){
             WifiConfiguration wifi = mWifiConfiguration.get(i);
             if(wifi.networkId == wifiId){
-                while(!(mWifiManager.enableNetwork(wifiId, true))){//?????Id??????????
-                    //status:0--????????1--?????????2--????????
+                while(!(mWifiManager.enableNetwork(wifiId, true))){
                     mWifiManager.updateNetwork(wifi);
-                    //mWifiManager.
-                   // int  ss = mWifiConfiguration.get(wifiId).status;
                     Log.i("ConnectWifi",String.valueOf(mWifiConfiguration.get(wifiId).status));
                 }
 
@@ -349,6 +346,7 @@ public class WifiAdmin {
         int wifiId = -1;
         mWifiManager.startScan();
         List<ScanResult> wifiList =  mWifiManager.getScanResults();//????????
+        //mWifiManager.re
         for(int i = 0;i < wifiList.size(); i++){
             ScanResult wifi = wifiList.get(i);
             if(wifi.SSID.equals(ssid)){
@@ -379,6 +377,14 @@ public class WifiAdmin {
         int ids  = mWifiInfo.getIpAddress();
 
        return ids;
+    }
+
+    /**
+     * 删除一个 路由。测试路由不需要保持，直接删除即可
+     * @param netId
+     */
+    public void deleWifi(int netId){
+        mWifiManager.removeNetwork(netId);
     }
 
     //得到连接的ID

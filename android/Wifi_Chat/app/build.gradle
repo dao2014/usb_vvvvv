@@ -1,0 +1,24 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 17
+    buildToolsVersion '19.1.0'
+    defaultConfig {
+        applicationId "szu.wifichat.android"
+        minSdkVersion 17
+        targetSdkVersion 19
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles 'proguard.cfg'
+        }
+    }
+    productFlavors {
+    }
+}
+
+dependencies {
+    compile files('libs/fastjson-1.1.34.android.jar')
+    compile 'com.android.support:support-v4:22.2.1'
+}

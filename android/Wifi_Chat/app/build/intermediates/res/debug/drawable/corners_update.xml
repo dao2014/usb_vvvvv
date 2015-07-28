@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/white" />
+    <corners android:radius="5.0dip" />
+</shape>
+<!-- From: file:/F:/androidProj/Wifi_Chat/app/src/main/res/drawable/corners_update.xml -->

@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
-import com.esp_v6.GetDateActivity;
 import com.esp_v6.MainActivity;
+import com.esp_v6.framents.FragmentChangeActivity;
 import com.esp_v6.mysocket.util.WifiAdmin;
 
 import java.io.BufferedReader;
@@ -105,7 +105,9 @@ public class connenAP extends Thread{
             }
             if( wifiAdmin.getWifiInfos()!=0){
                 //如果连接成功就断开当前的连接
+                wifiAdmin.deleWifi(statusid);
                 wifiAdmin.disConnectionWifi(statusid);
+
                 status = 0;
             }else{
                 status = 2;
@@ -166,8 +168,8 @@ public class connenAP extends Thread{
                 message.what = 1;
                 mHandler.sendMessage(message);
             } else {
-                while (true) {
 
+                while (true) {
                     Bundle bundle = new Bundle();
                     Message msg = Message.obtain();
                     try {
@@ -207,7 +209,7 @@ public class connenAP extends Thread{
                                 System.out.println("客户端 finally 异常:" + e.getMessage());
 
                             }
-                        } else {
+                        }  else {
 
                             try {
                                 if (br != null)
@@ -219,16 +221,11 @@ public class connenAP extends Thread{
                                 pw.close();
                             progressDialog.dismiss();
                             resetConnet( );
-                            //wifiAdmin.disConnectionWifi(wifistatusId);
-//                            if (SSID != null && !SSID.equals("")) {
-//                                SSID = SSID.substring(1, SSID.length() - 1);
-//                                if (!SSID.equals(CommonWifi.ESP_SSID)) {
-//                                    wifiAdmin.connetGuration(SSID);
-//                                }
-//                            }
                             Intent internt = new Intent();
+//                            internt.setClass(mainActivity,
+//                                    GetDateActivity.class);
                             internt.setClass(mainActivity,
-                                    GetDateActivity.class);
+                                    FragmentChangeActivity.class);
                             mainActivity.startActivity(internt);
                             break;
                         }

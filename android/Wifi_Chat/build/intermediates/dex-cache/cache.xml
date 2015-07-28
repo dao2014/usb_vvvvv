@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="F:\androidProj\Wifi_Chat\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.1\jars\libs\internal_impl-22.2.1.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="c471eaaba13ff64f6e0383d1c30a9cdc9a97efeb">
+        <dex dex="F:\androidProj\Wifi_Chat\app\build\intermediates\pre-dexed\debug\internal_impl-22.2.1-68410c4e85985d6686bc0fedeb3a792723e163ce.jar" />
+    </item>
+    <item
+        jar="F:\androidProj\Wifi_Chat\app\libs\fastjson-1.1.34.android.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="bef1d1224be099c387794bce1bdf81b38f37c6ce">
+        <dex dex="F:\androidProj\Wifi_Chat\app\build\intermediates\pre-dexed\debug\fastjson-1.1.34.android-bc142009047d2b2bc3f71e9cc74954979f9e492a.jar" />
+    </item>
+    <item
+        jar="C:\Users\Administrator\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\22.2.1\support-annotations-22.2.1.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="61a0ff5c29295ec56d7e0bd3d25d95dbf71b4b2b">
+        <dex dex="F:\androidProj\Wifi_Chat\app\build\intermediates\pre-dexed\debug\support-annotations-22.2.1-a6ce99705681296d95d823232cbd0a327c65fd3e.jar" />
+    </item>
+    <item
+        jar="F:\androidProj\Wifi_Chat\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.2.1\jars\classes.jar"
+        jumboMode="false"
+        revision="19.1.0"
+        sha1="f8efd0096475e0daf054267b61544e10dc776503">
+        <dex dex="F:\androidProj\Wifi_Chat\app\build\intermediates\pre-dexed\debug\classes-da91f80b32bf27dde0b91d09325249f26f73c443.jar" />
+    </item>
+
+</items>

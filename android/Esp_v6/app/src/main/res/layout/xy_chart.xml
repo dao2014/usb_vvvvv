@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical" android:layout_width="fill_parent"
+              android:layout_height="fill_parent">
+ <LinearLayout
+     android:id="@+id/chart"
+     android:orientation="horizontal"
+     android:layout_width="fill_parent"
+     android:layout_height="0dp"
+     android:layout_weight="30"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1px"
+            android:background="@color/gray_1"
+            />
+        <LinearLayout
+            android:orientation="horizontal"
+
+            android:layout_width="fill_parent"
+            android:layout_margin="@dimen/margin_parking"
+            android:layout_height="wrap_content">
+            <CheckBox
+                android:id="@+id/shadow_V"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/show_v" />
+            <CheckBox
+                android:id="@+id/shadow_I"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/show_I" />
+            <CheckBox
+                android:id="@+id/shadow_W"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/show_W" />
+            </LinearLayout>
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1px"
+            android:background="@color/gray_1"
+            />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_margin="@dimen/margin_parking"
+            android:layout_height="wrap_content">
+            <TextView
+                style="@style/main_textview"
+                android:id="@+id/text_V"
+                android:layout_weight="1"
+                android:text="Voltage:0V"
+                />
+            <TextView
+                style="@style/main_textview"
+                android:id="@+id/text_I"
+                android:layout_weight="1"
+                android:text="Electricity:0A"
+                />
+            <TextView
+                style="@style/main_textview"
+                android:id="@+id/text_W"
+                android:layout_weight="1"
+                android:text="Power:0W"
+                />
+        </LinearLayout>
+        <View
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:background="@color/gray_1"
+            android:layout_height="10dp">
+        </View>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_margin="@dimen/margin_parking"
+            android:layout_height="wrap_content">
+            <TextView
+                style="@style/main_textview"
+                android:id="@+id/view_capacity"
+
+                android:gravity="left"
+                android:text="Has been filling capacity:0A"
+                />
+            <TextView
+                style="@style/main_textview"
+                android:id="@+id/view_time"
+
+                android:gravity="left"
+                android:text="Have sufficient time:0M"
+                />
+            <TextView
+                style="@style/main_textview"
+                android:id="@+id/temperature"
+
+                android:gravity="left"
+                android:text="Temperature:0°"
+                />
+            <Button
+                style="@style/main_textview"
+                android:id="@+id/switchs"
+
+                android:gravity="center"
+                android:text="ON/OFF"
+                />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

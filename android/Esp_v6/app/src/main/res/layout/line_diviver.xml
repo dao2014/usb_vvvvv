@@ -1,0 +1,10 @@
+<layer-list  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+     android:layout_width="wrap_content">
+    <item android:drawable="@drawable/solid_divider_ccc" 
+        /> 
+    <item 
+        android:drawable="@drawable/solid_divider_fff"  
+        android:top="1px"
+        /> 
+</layer-list>

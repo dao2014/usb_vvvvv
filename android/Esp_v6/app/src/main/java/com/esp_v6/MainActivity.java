@@ -3,6 +3,8 @@ package com.esp_v6;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +14,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.esp_v6.db.dbHelper;
+import com.esp_v6.framents.FragmentChangeActivity;
 import com.esp_v6.mysocket.connenAP;
 import com.esp_v6.mysocket.util.WifiAdmin;
 import com.esp_v6.thread.ConnonWifi.CommonWifi;
@@ -37,6 +41,8 @@ public class MainActivity extends Activity  {
     private WifiAdmin wifiAdmin;
     private String SSID="";
     boolean checkSSID=true;
+    private dbHelper db;
+    SQLiteDatabase sqldbs;
     CommonWifi cw;
     Thread thread;
     public Handler mHandler=new Handler()
@@ -90,6 +96,8 @@ public class MainActivity extends Activity  {
         mPasswordView = (EditText) findViewById(R.id.password);
         logs = (TextView) findViewById(R.id.logs);
         wifiAdmin = WifiAdmin.getInstance(this);
+        db=new dbHelper(this);
+        sqldbs=db.getReadableDatabase();
         SSID = wifiAdmin.getSSID();
 //        cw = new CommonWifi(wifiAdmin,mHandler);
 //        cw.setCheckSSID(true);
@@ -119,6 +127,12 @@ public class MainActivity extends Activity  {
 
         mLoginFormView = findViewById(R.id.login_form);
         //mProgressView = findViewById(R.id.login_progress);
+        Intent internt = new Intent();
+//                            internt.setClass(mainActivity,
+//                                    GetDateActivity.class);
+        internt.setClass(mainActivity,
+                FragmentChangeActivity.class);
+        mainActivity.startActivity(internt);
     }
 
     @Override

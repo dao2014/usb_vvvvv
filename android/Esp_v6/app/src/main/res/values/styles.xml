@@ -1,8 +1,20 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="@android:style/Theme.Holo.Light">
         <!-- Customize your theme here. -->
     </style>
-
+    <style name="windoes_hw_wf" >
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">fill_parent</item>
+    </style>
+    <style name="windoes_hw_w" >
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+    <style name="main_textview" parent="windoes_hw_wf">
+        <item name="android:textSize">16dp</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:textColor">@color/text_color</item>
+    </style>
 </resources>
