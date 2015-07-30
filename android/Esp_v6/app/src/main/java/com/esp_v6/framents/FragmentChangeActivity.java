@@ -17,13 +17,7 @@ public class FragmentChangeActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		// set the Above View
-//		if (savedInstanceState != null)
-//			mContent = getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
-//		if (mContent == null)
 		mContent = new ChargerMainFrament(R.color.white);
-		
-		// set the Above View
 		setContentView(R.layout.content_frame);
 		getSupportFragmentManager()
 		.beginTransaction()

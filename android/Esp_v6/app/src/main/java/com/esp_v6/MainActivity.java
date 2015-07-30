@@ -15,10 +15,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.esp_v6.db.dbHelper;
-import com.esp_v6.framents.FragmentChangeActivity;
 import com.esp_v6.mysocket.connenAP;
 import com.esp_v6.mysocket.util.WifiAdmin;
 import com.esp_v6.thread.ConnonWifi.CommonWifi;
+import com.esp_v6.thread.ConnonWifi.wifiAp.WifiApConst;
+import com.esp_v6.util.SharedFileUtils;
+import com.esp_v6.util.TextUtils;
+import com.esp_v6.util.WifiUtils;
 
 
 public class MainActivity extends Activity  {
@@ -42,6 +45,7 @@ public class MainActivity extends Activity  {
     private String SSID="";
     boolean checkSSID=true;
     private dbHelper db;
+    SharedFileUtils sfu;
     SQLiteDatabase sqldbs;
     CommonWifi cw;
     Thread thread;
@@ -89,6 +93,7 @@ public class MainActivity extends Activity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        sfu = new SharedFileUtils(this);
         mainActivity = this;
         // Set up the login form.
         mssid = (EditText) findViewById(R.id.email);
@@ -99,6 +104,7 @@ public class MainActivity extends Activity  {
         db=new dbHelper(this);
         sqldbs=db.getReadableDatabase();
         SSID = wifiAdmin.getSSID();
+
 //        cw = new CommonWifi(wifiAdmin,mHandler);
 //        cw.setCheckSSID(true);
 //        cw.start();
@@ -108,9 +114,12 @@ public class MainActivity extends Activity  {
             public void onClick(View view) {
 
                     progressDialog = ProgressDialog.show(MainActivity.this, "请稍等...", "设置中...", true);
-                    String values = "ssid"+mssid.getText().length()+""+mssid.getText()+"pass"+mPasswordView.getText().length()+""+mPasswordView.getText();
 
-                    connenAP ls = new connenAP();
+//                    String values = "ssid"+mssid.getText().length()+""+mssid.getText()+"pass"+mPasswordView.getText().length()+""+mPasswordView.getText();
+
+                    String values = TextUtils.sendSSIDPASS(WifiUtils.getApSsid(mainActivity), WifiApConst.WIFI_AP_PASSWORD,mssid.getText()+"",mPasswordView.getText()+"",sfu);
+
+                connenAP ls = new connenAP();
                     ls.setNewssid(mssid.getText()+"");
                     ls.setSsidPass(mPasswordView.getText() + "");
                     ls.setValues(values);
@@ -130,9 +139,9 @@ public class MainActivity extends Activity  {
         Intent internt = new Intent();
 //                            internt.setClass(mainActivity,
 //                                    GetDateActivity.class);
-        internt.setClass(mainActivity,
-                FragmentChangeActivity.class);
-        mainActivity.startActivity(internt);
+//        internt.setClass(mainActivity,
+//                FragmentChangeActivity.class);
+//        mainActivity.startActivity(internt);
     }
 
     @Override

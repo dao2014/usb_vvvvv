@@ -285,12 +285,11 @@ public class AbstractChartUtil {
                 int xmin = (int) renderer.getXAxisMin();
                 int xman =(int) renderer.getXAxisMax();
                 if(xman-xmin==12||xman-xmin==13) {
+                    //设置 等比
                     renderer.setInitialRange(new double[]{xmin, xman, renderer.getXAxisMin(), renderer.getYAxisMax()}, 0);
                 }
                 xmin++;
                 xman++;
-//                renderer.setXAxisMin(xmin);
-//                renderer.setXAxisMax(xman);
                      renderer.setRange(new double[]{xmin, xman, renderer.getYAxisMin(), renderer.getYAxisMax()});// 设置显示的的范围
 
             }

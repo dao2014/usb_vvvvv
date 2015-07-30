@@ -1,4 +1,4 @@
-#include "stm8s.h"
+nclude "stm8s.h"
 #include "stdio.h"
 #include "wifi_confg.h"
 #include "led.h"
@@ -26,7 +26,11 @@
 typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 __IO TestStatus TransferStatus1 = FAILED;
 uint8_t ReadBuffer[FLASH_BLOCK_SIZE];
+uint8_t APBuffer[50]={0};
+uint8_t STABuffer[50]={0};
 __IO uint8_t RxCounter1 = 0x00;
+char *AP_SSID;
+char *STA_SSID;
 char RxBuffer1[300]={0};
 char returnerror[]="ERROR";
 char retrunok[]="OK";
@@ -45,7 +49,10 @@ char sipsendretn2[]="Unlink";  //服务器断开  link is not
 char sipsendretn3[]="link is not";
 char cipEnd[]="Linked";  //获取客户端发送过来的信息 结束语句  CLOSED
 char cipEnd2[]="CLOSED";
-char cipEnd3[]="ssid";  //校验数据
+char cipEnd3[]="sta";  //校验数据
+char apssidstr[]="nap";  //校验数据
+char stassidstr[]="sta";  //校验数据
+
 //暂时定数据
 //char *datas="set,12345,3.7V,0.2A,7777777777777777";
 char *ptr1;
@@ -58,6 +65,7 @@ char status=1;   //跳槽循环作用
 uint16_t stmsV;  //电压
  uint16_t stmsI;  //电流
  uint16_t stmsIADC;  //电流ADC
+ char staorap=0;  //0表示 热点链接 1表示wifi链接上
  
 uint16_t tci;
 /* Private functions ---------------------------------------------------------*/
@@ -88,6 +96,8 @@ void findCipstatus();
 
 //等待客户端发送的信息
 void waitClientDate();
+//获取 ssid
+void getSSID(char *byffer);
 /**
  ** 字符串拼接方法
  **/
@@ -107,6 +117,10 @@ void resetMCU();
 *  重构 查找 是否存在字符 
 */
 char * putstrstr(char * rt,char * rx);
+//查看 SSID 显示
+void findATCWLAP();
+//退出当前连接
+void findATCWQAP();
 
 
 
@@ -165,6 +179,7 @@ void setconfigAp()
 void lengWifi()
 {
   wifi_rst();
+  findATCWLAP();
   //连接AP 路由器
   setCwjap();
   //查询是否获取 路由分配的IP  尝试连接10次 间隔2秒.否则当做密码有问题
@@ -182,6 +197,49 @@ void lengWifi()
   findCipstatus();
   //连接tcp
   findCipstart();
+}
+
+
+//退出当前连接
+void findATCWQAP()
+{
+  reset_value();
+  printf("AT+CWQAP\r\n");
+  do
+  {
+    ptr1 = putstrstr(RxBuffer1, retrunok);  //判断是否存在热点ptr2 = putstrstr(RxBuffer1, stassidstr);  
+     
+    if(ptr1 !=NULL )
+    {
+       
+       status=0;
+    } 
+    
+  }while(status);
+}
+
+//查看 SSID 显示
+void findATCWLAP()
+{
+  findATCWQAP();
+  reset_value();
+  printf("AT+CWLAP\r\n");
+  do
+  {
+    ptr1 = putstrstr(RxBuffer1, apssidstr);  //判断是否存在热点
+    ptr2 = putstrstr(RxBuffer1, stassidstr);  //  判断是否存在路由
+   if(ptr2 !=NULL )
+    {
+      staorap=1;  //wifi
+       status=0;
+    }
+    if(ptr1 !=NULL )
+    {
+      staorap=0;  //热点
+       status=0;
+    } 
+    
+  }while(status);
 }
 
 //初始化命令
@@ -212,8 +270,14 @@ void setCwjap()
 {
    reset_value();
   // ReadMultiBlockByte(Block_1,1,ReadBuffer);
-   readyByte(ReadBuffer);
-   printf("%s\r\n",ReadBuffer);
+   //readyByte(ReadBuffer);
+   if(staorap==0)  //说明当前连接的 热点
+   {
+      printf("%s\r\n",APBuffer);
+   }else{ //说明链接的是wifi
+      printf("%s\r\n",STABuffer);
+   }
+    
    do
   {
     ptr1 = putstrstr(RxBuffer1, retrunok);  //判断是否存在ok
@@ -226,6 +290,8 @@ void setCwjap()
    // Delayms(1000);
   }while(status);
 }
+
+
 
  
 
@@ -256,7 +322,13 @@ void findCifsr()
 void findCipstart()
 {
   reset_value();
-   printf("AT+CIPSTART=\"TCP\",\"192.168.6.100\",1001\r\n");
+  if(staorap==0)  //说明当前连接的 热点
+   {
+      printf("AT+CIPSTART=\"TCP\",\"192.168.43.1\",1001\r\n");
+   }else{ //说明链接的是wifi
+      printf("AT+CIPSTART=\"TCP\",\"192.168.6.100\",1001\r\n");
+   }
+   
    do
   {
     ptr1 = putstrstr(RxBuffer1, cipstart);  //判断是否存在Linked 表示 还没连接成功
@@ -304,7 +376,7 @@ void getADC()
   stmsIADC=0;
   stmsI = OneChannelGetADValue(ADC2_CHANNEL_4,ADC2_SCHMITTTRIG_CHANNEL4);
   stmsIADC = OneChannelGetADValue(ADC2_CHANNEL_4,ADC2_SCHMITTTRIG_CHANNEL4);
-  stmsI = 3300 * (uint32_t) stmsI / 2 / 1024;
+  stmsI = 3300 * (uint32_t) stmsI *100/2/5/ 1024;  //求出电阻 R0.05的电压值 然后 I=U/R
  // Delayms(10);
  // Refresh_WWDG_Window();
   tci=0;
@@ -352,7 +424,7 @@ void putDate()
     reset_value();
     getADC();
      //printf("set,123123,123123mV,123123mA,123123Tc,777777777111111111111177" );
-    printf("set,123123,%dmV,%dmA=%dADC,%dTc,7777777771111111111111777777777777777777777777777777777",stmsV,stmsI,stmsIADC,tci);//发送数据
+    printf("set,123123,%d,%d,%d,7777777771111111111111777777777777777777777777777777777",stmsV,stmsI,stmsIADC,tci);//发送数据
     do
     {
       ptr1 = putstrstr(RxBuffer1, sipsendretn);  //判断是否存在服务器返回错误 sipsendretn sipsendretn
@@ -527,12 +599,68 @@ uint8_t readFlashDate()
 {
   uint8_t i=0;
   
+   
   readyByte(ReadBuffer);
-  if(sizeof(ReadBuffer) > 1)
+  if(ReadBuffer[0] != '\0')
   {
+    getSSID(ReadBuffer);
     i = 1; 
   }
   return i;
+}
+
+
+
+
+//获取SSID
+void getSSID(char *byffer)
+{
+  int stn=0;
+  int i=0;
+  char *substr = "nap";
+    char *subpass= "sta";
+    char bapssid[20]={0};
+    char stapssid[20]={0};
+    char *ssidstr = strstr(byffer, substr);//获取 ssid
+    stn=(*(ssidstr+3))-'0';  //获取ssid个数
+    for(i=0;i <stn ;i++)   //获取ssid值
+    {
+      bapssid[i] = *(ssidstr+15+i);
+      if((stn-1)==i){
+        bapssid[i+1]='\0';
+      }
+    }
+    AP_SSID=bapssid;
+    stn=0;
+    char *stassidstr = strstr(ssidstr, subpass);//获取 ssid
+    stn=(*(stassidstr+3))-'0';  //获取ssid个数
+    for(i=0;i <stn ;i++)   //获取ssid值
+    {
+      stapssid[i] = *(stassidstr+15+i);
+      if((stn-1)==i){
+        stapssid[i+1]='\0';
+      }
+    }
+    STA_SSID = stapssid;
+    ///获取连接路由或者热点的指令
+    int apstartcount=stassidstr-ssidstr-5;
+    
+    i=0;
+    for(i=0; i < apstartcount; i++)
+    {
+      APBuffer[i]= *(ssidstr+5+i);
+      if((apstartcount-1)==i){
+        APBuffer[i+1]='\0';  //热点指令
+      }
+    }
+    for(i=0; i < 50; i++)
+    {
+      STABuffer[i]= *(stassidstr+5+i);
+      if(*stassidstr == '\0'){
+        APBuffer[i]='\0';  //热点指令
+      }
+    }
+    
 }
 
 /*初始化系统,并且重新启动*/
@@ -552,6 +680,7 @@ void restart()
 //例如:ssid2TDpass812345678
 void saveFlaceDate()
 {
+  /**
   int stn=0;
   int i=0;
   char *substr = "ssid";
@@ -585,6 +714,9 @@ void saveFlaceDate()
   writeBuffer = str_contact(writeBuffer,nowpass);
   writeBuffer = str_contact(writeBuffer,ch5);
   wraitByte(writeBuffer);
+  */
+  getSSID(RxBuffer1);
+  wraitByte(RxBuffer1);
   Delayms(10);
 }
 

@@ -13,4 +13,7 @@
     <string name="show_v">Voltage</string>
     <string name="show_I">Electricity</string>
     <string name="show_W">Power</string>
+    <string name="wifiap_dialog_createap_nonsupport">你的设备部不支持热点</string>
+    <string name="dialog_tips">提示</string>
+    <string name="wifiap_dialog_createap_closewifi_confirm">创建热点会关闭当前的WiFi，确认继续？</string>
 </resources>

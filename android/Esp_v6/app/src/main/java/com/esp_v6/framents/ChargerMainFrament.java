@@ -6,7 +6,6 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +18,11 @@ import android.widget.Toast;
 import com.esp_v6.R;
 import com.esp_v6.db.dbHelper;
 import com.esp_v6.mysocket.GetDateSocket;
+import com.esp_v6.mysocket.TcpServer;
 import com.esp_v6.mysocket.util.MathExtend;
 import com.esp_v6.util.AbstractChartUtil;
+import com.esp_v6.util.SharedFileUtils;
+import com.esp_v6.util.WifiUtils;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
@@ -42,7 +44,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2015/7/23.
  */
-public class ChargerMainFrament extends Fragment {
+public class ChargerMainFrament extends com.esp_v6.BaseActivity {
     /** 主要的数据集的所有系列,包括进入一个图表 */
     private XYMultipleSeriesDataset mDataset;
     /** 包括所有的主要渲染器渲染器定制图表。 */
@@ -70,6 +72,7 @@ public class ChargerMainFrament extends Fragment {
     public TextView temperature;
     public int second; //秒钟
     public float zoomsize=0L;
+    private  TcpServer tcpServer;
 
     public  GetDateSocket ms; //获取 线程
 
@@ -83,9 +86,12 @@ public class ChargerMainFrament extends Fragment {
         setRetainInstance(true);
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         abstractChartUtil = new AbstractChartUtil();
+        mWifiUtils = WifiUtils.getInstance(getActivity());
+        sharedFileUtils =new SharedFileUtils(getActivity());
          return inflater.inflate(R.layout.xy_chart,container,false);
     }
 
@@ -194,21 +200,6 @@ public class ChargerMainFrament extends Fragment {
         setshow_V.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //getSlidingMenu().setFadeEnabled(isChecked);
-              //  abstractChartUtil.removeSimpleSeriesRenderer(simpleSeriesRenderer[0],isChecked);
-
-                if(isChecked){
-//                    mRenderer.setXAxisMin(xYSeries[0].getMinX());
-                 //   mRenderer.setXAxisMax(xYSeries[0].getMaxX());
-//                    mRenderer.setYAxisMin(xYSeries[0].getMinY());
-                //    mRenderer.setYAxisMax(xYSeries[0].getMaxY());
-                   // mRenderer.setFitLegend(true);
-                 //   mRenderer.setInScroll(true);
-                  //  mRenderer.setZoomRate(1.4f);//放大几倍
-                    //显示当前的视图范围
-                    //mRenderer.setRange(new double[]{0d, 5d, 0d, 10d});
-
-                }
                 abstractChartUtil.removeXYServes(xYSeries[0],isChecked,simpleSeriesRenderer[0]);
                 abstractChartUtil.refresh(mChartView);
             }
@@ -241,18 +232,18 @@ public class ChargerMainFrament extends Fragment {
      * 渲染图形初始化
      */
     public void mChartView(){
-
+        //图标
         String[] titles = new String[] { "Crete", "Corfu", "Thassos" };
         List<double[]> x = new ArrayList<double[]>();
         for (int i = 0; i < titles.length; i++) {
             x.add(new double[] { 0,0 });
         }
-        List<double[]> values = new ArrayList<double[]>();
+        List<double[]> values = new ArrayList<double[]>(); //初始化xy值
         values.add(new double[] { 0,0 });
         values.add(new double[] { 0,0 });
         values.add(new double[] {0,0 });
-        int[] colors = new int[] { Color.BLUE, Color.GREEN, Color.CYAN };
-        PointStyle[] styles = new PointStyle[] { PointStyle.CIRCLE, PointStyle.DIAMOND, PointStyle.TRIANGLE };
+        int[] colors = new int[] { Color.BLUE, Color.GREEN, Color.CYAN };//设置 线的颜色
+        PointStyle[] styles = new PointStyle[] { PointStyle.CIRCLE, PointStyle.DIAMOND, PointStyle.TRIANGLE }; //设置点的图形
         mRenderer = abstractChartUtil.buildRenderer(colors, styles);
 
         int length = mRenderer.getSeriesRendererCount();
@@ -274,14 +265,10 @@ public class ChargerMainFrament extends Fragment {
         LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.chart);
         mDataset =  abstractChartUtil.buildDataset(titles, x, values);
         mChartView = ChartFactory.getCubeLineChartView(getActivity().getApplicationContext(),mDataset,mRenderer, 0.2f);
-      //  mChartView = new
-        // enable the chart click events
         //设置背景
         mChartView.setBackgroundColor(Color.BLACK);
         mRenderer.setClickEnabled(true);//设置图表是否允许点击
         mRenderer.setSelectableBuffer(100);//设置点的缓冲半径值(在某点附件点击时,多大范围内都算点击这个点)
-
-
         mChartView.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // handle the click event on the chart
@@ -344,18 +331,55 @@ public class ChargerMainFrament extends Fragment {
                         + "], Y range=[" + mRenderer.getYAxisMax() + ", " + mRenderer.getYAxisMax() + "]");
             }
         });
-//            boolean enabled = mDataset.getSeriesCount() > 0;
-//        setSeriesWidgetsEnabled(enabled);
         xYSeries = abstractChartUtil.getXYSerie();
         //abstractChartUtil.resetXYservesAll(xYSeries); //初始化值
         simpleSeriesRenderer = mRenderer.getSeriesRenderers();
         layout.addView(mChartView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
                 ViewGroup.LayoutParams.FILL_PARENT));
         mChartView.repaint();
+
+    }
+
+    /**
+     * 开启tcp 服务器
+     */
+    public void startTcpServer(){
+        tcpServer = new TcpServer(myHandler);
+        tcpServer.startTcpServer();
+    }
+
+    /**
+     * 停止 tcp服务器
+     */
+    public void stopTcpServer(){
+        tcpServer.stopTcp();
+    }
+
+    public void sendApSSID(String SSID){
+
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(ms!=null){
+            ms.setIsKeepAlive(false);
+        }
+    }
+
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
         ms  = new GetDateSocket();
         ms.setIsKeepAlive(true);
+        ms.setmWifiUtils(mWifiUtils);
+        ms.setSpf(sharedFileUtils);
         ms.setMyHandler(myHandler);
         ms.start();
+
     }
 
     @Override
@@ -364,19 +388,19 @@ public class ChargerMainFrament extends Fragment {
 
     }
 
-    /**
-     * Enable or disable the add data to series widgets
-     *
-     * @param enabled the enabled state
-     */
-    private void setSeriesWidgetsEnabled(boolean enabled) {
-//        mX.setEnabled(enabled);
-//        mY.setEnabled(enabled);
-//        mAdd.setEnabled(enabled);
-    }
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("mColorRes", mColorRes);
+    }
+
+    @Override
+    protected void initViews() {
+
+    }
+
+    @Override
+    protected void initEvents() {
+
     }
 }

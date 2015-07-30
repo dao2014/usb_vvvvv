@@ -35,8 +35,10 @@ STA模式指令顺序
 
 AT+RST                      //有OK
 AT+CWMODE=1		    //有OK
-AT+CWJAP="TD","12345678"    //有OK
-AT+CIFSR   //如果获取到ERROR就表示连接还没成功!如果连接正确 需要等待 3秒.就可以获取到地址 没有OK的
+AT+CWQAP      //退出当前连接 AP 有OK
+AT+CWLAP       //查看 当前可用的AP 返回 列表 有OK
+AT+CWJAP="TD","12345678"    //有OK    b
+AT+CIFSR   //如果获取到ERROR就表示连接还没成功或者断开!如果连接正确 需要等待 3秒.就可以获取到地址 没有OK的
 AT+CIPSTATUS      //有OK  如果返回 STATUS:1 表示建立连接  如果 2 表示获取到ID  一定要 先 检测ID 再到这个命令
 //********************************
 建立 tcp 连接协议
@@ -74,6 +76,5 @@ AT+CIPSEND=21
 set,12345,2.4v,0.2a222222gh,234234
 
 java com.esp.socket.server.SocketServer
-
 
 

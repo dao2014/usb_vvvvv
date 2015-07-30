@@ -5,6 +5,9 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.esp_v6.mysocket.util.SocketUtil;
+import com.esp_v6.thread.ConnonWifi.wifiAp.WifiApConst;
+import com.esp_v6.util.SharedFileUtils;
+import com.esp_v6.util.WifiUtils;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -17,11 +20,17 @@ public class GetDateSocket extends Thread{
     public static final int PORT = 1001;//服务器端口号
     public Handler myHandler;
     public boolean isKeepAlive=true;
+    public WifiUtils mWifiUtils;
     Socket socket = null;
+    public SharedFileUtils spf;
 
     public void setMyHandler( Handler handler ){
         myHandler = handler;
 
+    }
+
+    public void setSpf(SharedFileUtils spf) {
+        this.spf = spf;
     }
 
     public Socket getSocket() {
@@ -31,6 +40,10 @@ public class GetDateSocket extends Thread{
     public GetDateSocket (  ){
         super();
 
+    }
+
+    public void setmWifiUtils(WifiUtils mWifiUtils) {
+        this.mWifiUtils = mWifiUtils;
     }
 
     public void setIsKeepAlive(boolean isKeepAlive) {
@@ -45,25 +58,35 @@ public class GetDateSocket extends Thread{
         int i = 0;
 
         try {
-            socket = new Socket(IP_ADDR, PORT);
+            if(mWifiUtils.isWifiConnect())
+                socket = new Socket(IP_ADDR, PORT);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         String ret="";
-        while (isKeepAlive) {
+        while (isKeepAlive){
+           // if()
+            if(!mWifiUtils.isWifiConnect()){
+                isKeepAlive = false;
+                return;
+            }
+           String str = "get\n";
+           if(!isKeepAlive){
+               String sp =  spf.getString(WifiApConst.AP_SSID);
+           }
             Bundle bundle = new Bundle();
             Message msg = Message.obtain();
             try {
                 msg.what = 0x11;
                 bundle.clear();
-                SocketUtil.writeStr2Stream("get\n",
-                        socket.getOutputStream());
-
-                String str = "get\n";
-
-                //out.writeUTF(str);
-
-                ret =  SocketUtil.readStrFromStream(socket.getInputStream());
+                if(socket!=null) {
+                    SocketUtil.writeStr2Stream(str,
+                            socket.getOutputStream());
+                    ret = SocketUtil.readStrFromStream(socket.getInputStream());
+                }else{
+                    ret="服务器没启动!或者没有网络";
+                    isKeepAlive=false;
+                }
                 System.out.println("服务器端返回过来的是: " + ret);
                 if(ret != null && ret.equals("stop")){
                     ret="下位机已停止!";
@@ -96,7 +119,7 @@ public class GetDateSocket extends Thread{
                 }
                 System.out.println("close......");
             }finally {
-                if(ret==null || ret.equals("")){
+                if(ret==null || ret.equals("") || !isKeepAlive){
                     try {
                         if(socket!=null)
                             socket.close();
