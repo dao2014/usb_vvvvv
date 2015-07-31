@@ -1,4 +1,4 @@
-nclude "stm8s.h"
+#include "stm8s.h"
 #include "stdio.h"
 #include "wifi_confg.h"
 #include "led.h"
@@ -8,7 +8,7 @@ nclude "stm8s.h"
 #include "adc.h"
 
 
-/* Private defines -----------------------------------------------------------*/
+/* Private defines ------使用esp8266 v0.9.5.2 AT Firmware-----------------------------------------------------*/
 #ifdef _RAISONANCE_
 #define PUTCHAR_PROTOTYPE int putchar (char c)
 #define GETCHAR_PROTOTYPE int getchar (void)
@@ -37,6 +37,7 @@ char retrunok[]="OK";
 char retrunno[]="no";
 char rest[]="ready";
 char cifsr[]="ERROR";
+char stafllsr[]="FAIL";
 char cifsrR1[]=".";
 char cipstatus[]="STATUS";
 char cipstart[]="Linked";  
@@ -121,6 +122,8 @@ char * putstrstr(char * rt,char * rx);
 void findATCWLAP();
 //退出当前连接
 void findATCWQAP();
+// test
+void findtestCipstart();
 
 
 
@@ -128,23 +131,21 @@ void findATCWQAP();
 //初始化 AP模式 开启 tcp 服务器 
 void setconfigAp()
 {
-  status=0;
-  reset_value();
- 
-  printf("AT+RST\r\n");
-  do
-  {
-    Delayms(10);
-    Refresh_WWDG_Window();
-    ptr1 = strstr(RxBuffer1, rest);  //判断是否存在ready
-    if(ptr1 !=NULL )
-    {
-      //printf("find ERROR !!\r\n");
-      status=0;
+  int i=0;
+  for(i;i<15;i++){
+      Refresh_WWDG_Window();
+      Delayms(30);
+      Refresh_WWDG_Window();
+      Delayms(30);
+      Refresh_WWDG_Window();
+      Delayms(30);
+      Refresh_WWDG_Window();
+      
     }
-    //Delayms(500);
-    //LED_Operation(LED_2, ON);
-  }while(status);
+  status=1;
+  //reset_value();
+  //printf("AT+RST\r\n");
+ 
  // wifi_rst();
   setCwmode("2");
   wifi_rst();
@@ -178,8 +179,20 @@ void setconfigAp()
 //连接路由器
 void lengWifi()
 {
+  int i=0;
+  for(i;i<15;i++){
+      Refresh_WWDG_Window();
+      Delayms(30);
+      Refresh_WWDG_Window();
+      Delayms(30);
+      Refresh_WWDG_Window();
+      Delayms(30);
+      Refresh_WWDG_Window();
+      
+    }
   wifi_rst();
-  findATCWLAP();
+ // findtestCipstart();
+ // findATCWLAP();
   //连接AP 路由器
   setCwjap();
   //查询是否获取 路由分配的IP  尝试连接10次 间隔2秒.否则当做密码有问题
@@ -218,16 +231,17 @@ void findATCWQAP()
   }while(status);
 }
 
-//查看 SSID 显示
+//搜索热点或者SSID 显示
 void findATCWLAP()
 {
   findATCWQAP();
   reset_value();
-  printf("AT+CWLAP\r\n");
+  printf("AT+CWLAP=\"%s\",\"\"\r\n",apssidstr);
   do
   {
     ptr1 = putstrstr(RxBuffer1, apssidstr);  //判断是否存在热点
     ptr2 = putstrstr(RxBuffer1, stassidstr);  //  判断是否存在路由
+    ptr3 = putstrstr(RxBuffer1, retrunok);  //  判断是否存在路由
    if(ptr2 !=NULL )
     {
       staorap=1;  //wifi
@@ -238,6 +252,11 @@ void findATCWLAP()
       staorap=0;  //热点
        status=0;
     } 
+   if(status != 0 && ptr3 != NULL)
+   {
+     reset_value();
+     printf("AT+CWLAP\r\n");
+   }
     
   }while(status);
 }
@@ -268,6 +287,7 @@ void wifi_rst()
 //连接AP 路由器
 void setCwjap()
 {
+  staorap=1;//暂时连接wifi
    reset_value();
   // ReadMultiBlockByte(Block_1,1,ReadBuffer);
    //readyByte(ReadBuffer);
@@ -280,12 +300,18 @@ void setCwjap()
     
    do
   {
-    ptr1 = putstrstr(RxBuffer1, retrunok);  //判断是否存在ok
+    ptr1 = putstrstr(RxBuffer1, retrunok);  //判断是否存在okstafllsr
+    ptr2 = putstrstr(RxBuffer1, stafllsr);  //判断是否存在okstafllsr
     if(ptr1!=NULL)
     {
       //printf("find ERROR !!\r\n");
       status=0;
       Refresh_WWDG_Window();
+    }
+    if(ptr2!=NULL)  //说明链接失败
+    {
+      //printf("find ERROR !!\r\n");
+      resetMCU();//复位MCU
     }
    // Delayms(1000);
   }while(status);
@@ -317,10 +343,28 @@ void findCifsr()
   }while(status);
 }
 
+// test
+void findtestCipstart()
+{
+  reset_value();
+    printf("AT+CWJAP=\"TD1\",\"192.168.6.122\"\r\n");
+   do
+  {
+    ptr1 = putstrstr(RxBuffer1, retrunok);  //判断是否存在Linked 表示 还没连接成功
+   // ptr2 = putstrstr(RxBuffer1,cipstart1);
+    if(ptr1 !=NULL )
+    {
+      status=0;
+    }
+    
+  }while(status);
+   
+}
 
 // 连接 tcp 服务器
 void findCipstart()
 {
+  staorap=1;
   reset_value();
   if(staorap==0)  //说明当前连接的 热点
    {
@@ -331,11 +375,15 @@ void findCipstart()
    
    do
   {
-    ptr1 = putstrstr(RxBuffer1, cipstart);  //判断是否存在Linked 表示 还没连接成功
-    ptr2 = putstrstr(RxBuffer1,cipstart1);
-    if(ptr1 !=NULL || ptr2 !=NULL )
+    ptr1 = putstrstr(RxBuffer1, cipstart1);  //判断是否连接成功!
+    ptr2 = putstrstr(RxBuffer1,cipEnd2);   //连接失败,或者服务器断开
+    if(ptr1 !=NULL  )
     {
       status=0;
+    }
+    if(ptr2 != NULL)
+    {
+      restart();//重启MCU
     }
     
   }while(status);
@@ -397,7 +445,7 @@ void putDate()
 
     ptr1 = putstrstr(RxBuffer1, sipsendrs);  //判断是否存在Linked 表示 还没连接成功  +i 
     ptr2 = putstrstr(RxBuffer1, sipsendretn3);  //
-    //ptr3 = putstrstr(RxBuffer1, sipsendretn2);
+    ptr3 = putstrstr(RxBuffer1, cipEnd2); //监控服务器是否断开
     if(ptr2 !=NULL )
     {
       status=0;
@@ -407,6 +455,10 @@ void putDate()
     {
       Refresh_WWDG_Window();
       status=0;
+    } 
+    if(ptr3 !=NULL )
+    {
+      restart();//重启MCU
     } 
      
     
